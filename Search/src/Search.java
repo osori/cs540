@@ -3,12 +3,11 @@ import java.util.*;
 public class Search {
 	static int m, n, d;
 	
-	//ArrayList<Integer> currState = new ArrayList<Integer>();
-	
 	static int jugM;
 	static int jugN;
 	
-	static String state = "00"; // initial state
+	static String initState = "0-0"; // initial state
+								 // split by "-", left is jugM and right is jugN
 	static int goal;
 	
 	public static void main(String[] args){
@@ -21,15 +20,25 @@ public class Search {
 		jugN = n;
 		goal = d;
 
-		System.out.println(bfs());
+		bfs(initState);
 	}
 	
-	static String formatState(String unformatted){
-		char left = unformatted.charAt(0);
-		char right = unformatted.charAt(1);
+	static String formatState(String unformattedState){
+		String left = stateAsPair(unformattedState)[0];
+		String right = stateAsPair(unformattedState)[1];
 		String formatted = "(" + left + ", " + right +")";
 		return formatted;
 	}
+	
+	static String[] stateAsPair(String state){
+		String[] pair = state.split("-");
+		if (pair.length != 2){
+			System.out.println("Invalid state was input.");
+			return null;
+		}
+		return pair;
+	}
+
 	
 	static void printList(List<String> l){
 		for (String elem : l){
@@ -47,41 +56,47 @@ public class Search {
 		System.out.println();
 	}
 	
-	static String bfs(){
-		Queue<String> OPEN = new LinkedList<String>();
+	static void bfs(String start){
+		Queue<String> queue = new LinkedList<String>();
 		ArrayList<String> CLOSED = new ArrayList<String>();
 		
-		int numIteration = 0;
-		OPEN.add(state);
+		//path = path.add(start);
 		
-		while (!OPEN.isEmpty()){
+		int numIteration = 0;
+		queue.add(start);
+		CLOSED.add(start);
+		System.out.println("BFS");
+		while (!queue.isEmpty()){
+			ArrayList<String> OPEN = new ArrayList<String>();
 			System.out.println("Iteration:");
 			System.out.println(numIteration);
-			String currState = OPEN.remove();
+			String currState = queue.poll();
 			if (isGoal(currState)){
 				
-				return currState; // success!
+				System.out.println("Result: " + formatState(currState)); // success!
+				return;
 			}
 			else {
 				// generate successors
 				for (String succState : generateSuccessors(currState)){
-					// ignore successors already in OPEN or CLOSED
-					if (OPEN.contains(succState) || CLOSED.contains(succState)){
+					// ignore successors already in queue or CLOSED
+					if (queue.contains(succState) || CLOSED.contains(succState)){
 					//	System.out.println("Not adding " +succState);
 					}
 					else{
 					//	System.out.println("Adding " +succState);
-						OPEN.add(succState);
+						queue.add(succState);
+						OPEN.add(0,succState);
 					}
-					// add successors to OPEN
+					// add successors to queue
 				}
 				CLOSED.add(currState);
 				numIteration++;
 			}
-			printQueue(OPEN);
 			printList(CLOSED);
+			printList(OPEN);
 		}
-		return "FAIL";
+		System.out.println( "Unsolvable");
 	}
 	//3 5 2
 	static ArrayList<String> generateSuccessors(String state){
@@ -89,20 +104,20 @@ public class Search {
 		ArrayList<String> successors = new ArrayList<String>();
 		Set<String> noDups = new HashSet<String>();
 		
-		int M = state.charAt(0)-'0';
-		int N = state.charAt(1)-'0';
+		int M = Integer.parseInt(stateAsPair(state)[0]);
+		int N = Integer.parseInt(stateAsPair(state)[1]);
 		
 		// 1. fill M
-		String state1 = Integer.toString(m) + N;
+		String state1 = Integer.toString(m) + "-" + N;
 		
 		// 2. fill N
-		String state2 = M + Integer.toString(n);
+		String state2 = M + "-" + Integer.toString(n);
 		
 		// 3. empty M
-		String state3 = "0" + N;
+		String state3 = "0" + "-" + N;
 		
 		// 4. empty N
-		String state4 = M + "0";
+		String state4 = M + "-" + "0";
 		
 		// 5. pour from M to N
 		String state5;
@@ -110,10 +125,10 @@ public class Search {
 			int tempM = Math.max(0, M+N-n);
 			int tempN = Math.min(M+N, n);
 
-			state5 = Integer.toString(tempM)+Integer.toString(tempN);
+			state5 = Integer.toString(tempM)+"-" +Integer.toString(tempN);
 		}
 		else {
-			state5 = Integer.toString(M)+Integer.toString(N);
+			state5 = Integer.toString(M)+"-" +Integer.toString(N);
 		}
 		
 		// 6. pour from N to M
@@ -121,10 +136,10 @@ public class Search {
 		if (N > 0){
 			int tempM = Math.min(M+N, m);
 			int tempN = Math.max(0, M+N-m);
-			state6 = Integer.toString(tempM)+Integer.toString(tempN);
+			state6 = Integer.toString(tempM)+"-" +Integer.toString(tempN);
 		}
 		else {
-			state6 = Integer.toString(M)+Integer.toString(N);
+			state6 = Integer.toString(M)+"-" +Integer.toString(N);
 		}
 		
 		//add into successors
@@ -145,10 +160,10 @@ public class Search {
 	}
 	
 	static boolean isGoal(String state){
-		if (state.charAt(0)-'0'==goal){
+		if (Integer.parseInt(stateAsPair(state)[0])==goal){
 			return true;
 		}
-		else if (state.charAt(1)-'0'==goal){
+		else if (Integer.parseInt(stateAsPair(state)[1])==goal){
 			return true;
 		}
 		return false;
