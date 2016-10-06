@@ -316,7 +316,8 @@ public class Search {
 	 * @param state the state we want to check whether it is the goal state
 	 */
 	static boolean isGoal(String state){
-		if (Integer.parseInt(stateAsPair(state)[0])==goal){
+		if (Integer.parseInt(stateAsPair(state)[0])==goal
+				&& Integer.parseInt(stateAsPair(state)[1])==0){
 			return true;
 		}
 		return false;
