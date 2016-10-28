@@ -18,7 +18,6 @@ public class AlphaBetaPruning {
 	}
 	
 	HashMap<Board, Integer> statesWithValue = new HashMap<Board, Integer>();
-//	List<Board> solBoards = new ArrayList<Board>();
 	
 	public int alphabeta(Board b, 
 						int alpha, 

@@ -1,7 +1,17 @@
-/**
- * 
- */
-import java.util.*;
+///////////////////////////////////////////////////////////////////////////////
+//                   
+// Name				:   ILKYU JU
+// Wisc Username	:	IJU2
+// Class Section	:	CS 540 - 1
+// Homework #		: 	5
+//
+// Submission Date	:   Oct 28, 2016
+// isLate			:   Yes
+// daysLate			:   1 day
+//
+// ****** I would like to use my one free late day for this assignment. ******
+// ******							Thank you.							******
+///////////////////////////////////////////////////////////////////////////////
 /**
  * @author ilkyu
  *
@@ -20,6 +30,11 @@ public class TicTacToe {
 		String boardInput = "";
 		boolean showSteps = false;
 		
+	    if(args.length != 13) {
+	        System.err.println("Usage: java TicTacToe <TicTacToe board> <verbose: Y/N>");
+	        return;
+	    }
+	    
 		for (int i = 0; i < 12; i++) {
 			boardInput = boardInput + args[i] + " ";
 		}

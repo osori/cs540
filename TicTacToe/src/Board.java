@@ -1,3 +1,8 @@
+
+/**
+ * @author ilkyu
+ *
+ */
 import java.util.*;
 
 public class Board {
