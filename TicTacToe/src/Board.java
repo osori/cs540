@@ -7,6 +7,8 @@ public class Board {
 	String[][] board = new String[3][4];
 	String currPlayer; 
 	int value;
+	int alpha, beta;
+	int lastAddedPos;
 	
 	List<Coords> blankCoords = new ArrayList<Coords>();
 	
@@ -26,6 +28,7 @@ public class Board {
 		this.currPlayer = currPlayer;
 		
 		getBlanks();
+		goalCheck();
 		
 	}
 	
@@ -65,10 +68,9 @@ public class Board {
 	
 	public List<Board> successors(){
 		this.getBlanks();
+		if (this.goalCheck() == 1) return new ArrayList<Board>();
 		ArrayList<Board> succs =  new ArrayList<Board>();
 		String nextPlayer;
-		
-		if (isTerminal()) return null;
 		
 		if (currPlayer.equals("X")){
 			nextPlayer = "O";
@@ -82,6 +84,7 @@ public class Board {
 	//		System.out.println("Current node: \n" + this);
 			Board b = new Board(boardarrayToString(), nextPlayer);
 			b.changeElem(c, nextPlayer);
+			b.lastAddedPos = Integer.valueOf(String.valueOf(c.getX()) + String.valueOf(c.getY()));
 			succs.add(b);
 	//		System.out.println("Successor added: \n" + b);
 	//		System.out.println("****************");
@@ -96,12 +99,11 @@ public class Board {
 	
 
 	public boolean isTerminal(){
-		return this.goalCheck().equals("Tie")
-				|| this.goalCheck().equals("O Won")
-				|| this.goalCheck().equals("X Won");
+		this.goalCheck();
+		return this.successors().isEmpty();
 	}
 	
-	public String goalCheck(){
+	public int goalCheck(){
 		HashMap<String, Boolean> winTable = new HashMap<>();
 		winTable.put("O", false);
 		winTable.put("X", false);
@@ -136,14 +138,14 @@ public class Board {
 		boolean x = winTable.get("X");
 		
 		if (o || x){ // Not a tie
-			if (o && x) { value = 0; return "Tie"; }
-			else if (o) { value = +1; return "O Won"; }
-			else if (x) { value = -1; return "X Won"; }
+			if (o && x) { value = 0; return 1; }
+			else if (o) { value = +1; return 1; }
+			else if (x) { value = -1; return 1; }
 		} else {
 			//Tie
-			return "Result Unavailable";
+			return 99;
 		}
-		return "Result Unavailable";
+		return -99;
 	}
 
 	public String toString(){
@@ -151,11 +153,12 @@ public class Board {
 		
 		for (int row = 0; row < 3; row ++){
 			for (int col = 0; col < 4; col ++){
-				ret = ret + board[row][col] + " ";
+				if (col != 3) ret = ret + board[row][col] + " ";
+				else if (col == 3) ret = ret + board[row][col];
 			}
-			ret = ret + "\n";
+			if (row != 2) ret = ret + "\n" ;
 		}
-		
+
 		return ret;
 	}
 }
