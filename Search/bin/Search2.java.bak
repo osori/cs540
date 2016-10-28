@@ -1,0 +1,365 @@
+import java.util.*;
+
+public class Search {
+	static int m, n, d;
+	static int jugM;
+	static int jugN;
+	static String initState = "0-0"; // initial state
+									 // split by "-", left is jugM and right is jugN
+	static int goal;
+	
+	
+	/* Main method of the Search program.
+	 * 
+	 * @param args array of three arguments
+	 * @throws IllegalArgumentException if arguments are not valid
+	 */
+	public static void main(String[] args){
+		
+		// check the validity of arguments
+		if (args.length != 3){
+			System.out.println("Usage: java Search "
+					+ "[Limit of Jug M] [Limit of Jug N] [Target Amount]");
+			throw new IllegalArgumentException();
+		}
+		
+		m = Integer.parseInt(args[0]);
+		n = Integer.parseInt(args[1]);
+		d = Integer.parseInt(args[2]);
+		
+		if (!(m>=n && m>=d)){
+			System.out.println("Error: m should be greater or equal to n and d");
+			throw new IllegalArgumentException();
+		}
+		
+		jugM = m;
+		jugN = n;
+		goal = d;
+
+		bfs(initState);
+		dfs(initState);
+	}
+	
+	
+	
+	/* Performs Breadth First Search for the Jug Problem.
+	 * 
+	 * @param start the initial state
+	 */
+	static void bfs(String start){
+		Queue<String> queue = new LinkedList<String>();
+		Set<String> CLOSED = new LinkedHashSet<String>();
+		HashMap<String, String> map = new HashMap<String, String>();
+		LinkedList<String> path = new LinkedList<String>();
+		String goalState = d + "-0";
+		boolean isGoalFound = false;
+		
+		int numIteration = 0;
+		
+		//enqueue initial state
+		queue.add(start);
+		System.out.println("BFS");
+		
+		
+		// while queue is not empty
+		while (!queue.isEmpty()){
+			// OPEN stores the successors of the state being iterated
+			ArrayList<String> OPEN = new ArrayList<String>();
+			
+			// dequeue a state and add it to CLOSED list
+			String currState = queue.remove();
+			CLOSED.add(currState);
+
+			// if the dequeued state is goal then success!
+			if (isGoal(currState)){
+				//success!
+				isGoalFound = true;
+				//stop bfs
+				break;
+				
+			}
+			
+			System.out.println("Iteration:");
+			System.out.println(numIteration);
+			
+			// putting successors into queue and tracking the path
+			for (String succState : generateSuccessors(currState)){
+				// ignore successors already in queue or CLOSED
+				OPEN.add(succState);
+				
+				// do NOT add into queue if the successor
+				// is already in the queue or CLOSED list
+				if (!queue.contains(succState) && !CLOSED.contains(succState)){
+					
+					queue.add(succState);
+					map.put(currState, succState);
+						
+				}
+			}
+			CLOSED.add(currState);
+
+			numIteration++;
+			
+			printSet(CLOSED);
+			printList(OPEN);
+		}
+		
+		// if goal was not found, print "Unsolvable"
+		if (!isGoalFound){
+			System.out.println( "Unsolvable");
+			return;
+		}
+		
+		// track the path to the goal state
+		String state0 = goalState;
+		while (!state0.equals(initState)){
+			for (String key : map.keySet()){
+				if(map.get(key).equals(state0)){
+					path.add(0, state0);
+					state0 = key;
+					break;
+				}
+			}
+		}
+		path.add(0,initState);
+		
+		// print the path found
+		System.out.println("Result: ");			
+		for (String state1 : path){
+			System.out.print(formatState(state1) + " ");
+		}
+		System.out.println();
+	}
+	
+	
+	/* Performs Depth First Search for the Jug Problem.
+	 * 
+	 * @param start the initial state
+	 */
+	static void dfs(String start){
+		Stack<String> stack = new Stack<String>();
+		Set<String> CLOSED = new LinkedHashSet<String>();
+		HashMap<String, String> map = new HashMap<String, String>();
+		LinkedList<String> path = new LinkedList<String>();
+		String goalState = d + "-0";
+		boolean isGoalFound = false;
+		
+		int numIteration = 0;
+		
+		//enqueue initial state
+		stack.add(start);
+		System.out.println("BFS");
+		
+		
+		// while stack is not empty
+		while (!stack.isEmpty()){
+			// OPEN stores the successors of the state being iterated
+			ArrayList<String> OPEN = new ArrayList<String>();
+			
+			// dequeue a state and add it to CLOSED list
+			String currState = stack.pop();
+			CLOSED.add(currState);
+
+			// if the popped state is goal then success!
+			if (isGoal(currState)){
+				//success!
+				isGoalFound = true;
+				//stop dfs
+				break;
+				
+			}
+			
+			System.out.println("Iteration:");
+			System.out.println(numIteration);
+			
+			// putting successors into stack and tracking the path
+			for (String succState : generateSuccessors(currState)){
+				// ignore successors already in queue or CLOSED
+				OPEN.add(succState);
+				
+				// do NOT push into stack if the successor
+				// is already in the stack or CLOSED list
+				if (!stack.contains(succState) && !CLOSED.contains(succState)){
+					
+					stack.add(succState);
+					map.put(currState, succState);
+						
+				}
+			}
+			CLOSED.add(currState);
+
+			numIteration++;
+			
+			printSet(CLOSED);
+			printList(OPEN);
+		}
+		
+		// if goal was not found, print "Unsolvable"
+		if (!isGoalFound){
+			System.out.println( "Unsolvable");
+			return;
+		}
+		
+		// track the path to the goal state
+		String state0 = goalState;
+		while (!state0.equals(initState)){
+			for (String key : map.keySet()){
+				if(map.get(key).equals(state0)){
+					path.add(0, state0);
+					state0 = key;
+					break;
+				}
+			}
+		}
+		path.add(0,initState);
+		
+		// print the path found
+		System.out.println("Result: ");			
+		for (String state1 : path){
+			System.out.print(formatState(state1) + " ");
+		}
+		System.out.println();
+	}
+
+
+	/* Generate successors of the given state in the Jug Problem
+	 * and returns the list of successors.
+	 * There exist six ways to generate successors 
+	 * and each way is explained in the method.
+	 * 
+	 * @param state the state of which we want to generate successors
+	 * @return an ArrayList of successors
+	 */
+	static ArrayList<String> generateSuccessors(String state){
+		
+		ArrayList<String> successors = new ArrayList<String>();
+		// this HashSet will be used for removing duplicates
+		Set<String> noDups = new LinkedHashSet<String>();
+		
+		// water amount of Jug M and N
+		// convert to int for the convenience of calculation
+		int M = Integer.parseInt(stateAsPair(state)[0]);
+		int N = Integer.parseInt(stateAsPair(state)[1]);
+		
+		// 1. fill M
+		String state1 = Integer.toString(m) + "-" + N;
+		
+		// 2. fill N
+		String state2 = M + "-" + Integer.toString(n);
+		
+		// 3. empty M
+		String state3 = "0" + "-" + N;
+		
+		// 4. empty N
+		String state4 = M + "-" + "0";
+		
+		// 5. pour from M to N
+		String state5;
+		if (M > 0){
+			int tempM = Math.max(0, M+N-n);
+			int tempN = Math.min(M+N, n);
+
+			state5 = Integer.toString(tempM)+"-" +Integer.toString(tempN);
+		}
+		else {
+			state5 = Integer.toString(M)+"-" +Integer.toString(N);
+		}
+		
+		// 6. pour from N to M
+		String state6;
+		if (N > 0){
+			int tempM = Math.min(M+N, m);
+			int tempN = Math.max(0, M+N-m);
+			state6 = Integer.toString(tempM)+"-" +Integer.toString(tempN);
+		}
+		else {
+			state6 = Integer.toString(M)+"-" +Integer.toString(N);
+		}
+		
+		//add into successors
+		successors.add(state1);
+		successors.add(state2);
+		successors.add(state3);
+		successors.add(state4);
+		successors.add(state5);
+		successors.add(state6);
+		
+		
+		//remove duplicates
+		noDups.addAll(successors);
+		successors.clear();
+		successors.addAll(noDups);
+		successors.remove(state);
+		return successors;
+	}
+	
+	/* Checks if the given state is the goal state.
+	 * Only d-0 is considered as a goal state.
+	 * 
+	 * @param state the state we want to check whether it is the goal state
+	 */
+	static boolean isGoal(String state){
+		if (Integer.parseInt(stateAsPair(state)[0])==goal){
+			return true;
+		}
+		return false;
+		
+	}
+	
+	/* Converts our internal state representation into
+	 * more human friendly format.
+	 * Format: ([Jug M's water amount], [Jug N's water amount])
+	 * 
+	 * @param unformattedState internal state representation to be converted
+	 * @return formatted form
+	 */
+	static String formatState(String unformattedState){
+		String left = stateAsPair(unformattedState)[0];
+		String right = stateAsPair(unformattedState)[1];
+		String formatted = "(" + left + ", " + right +")";
+		return formatted;
+	}
+	
+	/* Converts the internal String state representation into
+	 * an array of Strings by splitting m and n by "-"
+	 * 
+	 * @param state state that needs to be split into an array
+	 * @return an array of jug amounts {m, n}
+	 */
+	static String[] stateAsPair(String state){
+		String[] pair = state.split("-");
+		if (pair.length != 2){
+			System.out.println("Invalid state was input.");
+			return null;
+		}
+		return pair;
+	}
+
+	
+	static void printList(List<String> l){
+		for (String elem : l){
+			String formatted = formatState(elem);
+			System.out.print(formatted + " ");
+		}
+		System.out.println();
+	}
+	
+	static void printSet(Set<String> s){
+		for (String elem : s){
+			String formatted = formatState(elem);
+			System.out.print(formatted + " ");
+		}
+		System.out.println();
+	}
+	
+	static void printQueue(Queue<String> q){
+		for (String elem : q){
+			String formatted = formatState(elem);
+			System.out.print(formatted + " ");
+		}
+		System.out.println();
+	}
+
+
+}
+

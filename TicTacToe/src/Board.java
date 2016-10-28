@@ -104,7 +104,7 @@ public class Board {
 	}
 	
 	public int goalCheck(){
-		HashMap<String, Boolean> winTable = new HashMap<>();
+		HashMap<String, Boolean> winTable = new HashMap<String, Boolean>();
 		winTable.put("O", false);
 		winTable.put("X", false);
 		// Return 0 if O wins

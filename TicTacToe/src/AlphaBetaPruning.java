@@ -82,6 +82,56 @@ public class AlphaBetaPruning {
 		}
 		
 	}
+		
+	public int alphabeta_quiet(Board b, 
+				int alpha, 
+				int beta, 
+				boolean maximizingPlayer) {
+	
+	int v;	
+	
+	if (b.isTerminal()) {
+
+		statesWithValue.put(b, b.value);
+		return b.value;
+	}
+	
+	if (maximizingPlayer) {
+		v = MIN_VALUE;
+		for (Board succ : b.successors()) {
+		
+			v = Integer.max(v, alphabeta_quiet(succ, alpha, beta, false));
+			alpha = Integer.max(alpha,  v);
+			
+			if (beta < alpha) {
+				break;
+			}
+		
+		}
+		
+		statesWithValue.put(b, v);
+		return v;
+	} 
+	
+	else {			
+		v = MAX_VALUE;
+		for (Board succ : b.successors()) {
+			
+			v = Integer.min(v, alphabeta_quiet(succ, alpha, beta, true));
+			beta = Integer.min(beta, v);
+	
+			if (beta < alpha) {
+	
+				break;
+			}
+		
+		}
+	
+		statesWithValue.put(b, v);
+		return v;
+		}
+	
+	}	
 	
 	public Board getSolution(Board root) {
 		
