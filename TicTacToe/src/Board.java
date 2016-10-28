@@ -1,14 +1,18 @@
 import java.util.*;
 
 public class Board {
+	public static final int MAX_VALUE = 2;
+	public static final int MIN_VALUE = -2;
+	
 	String[][] board = new String[3][4];
 	String currPlayer; 
 	int value;
-	ArrayList<Coords> blankCoords = new ArrayList<Coords>();
+	
+	List<Coords> blankCoords = new ArrayList<Coords>();
 	
 	public Board(String input, String currPlayer){
 		
-		String[][] board = new String[3][4];
+		// String[][] board = new String[3][4];
 		String[] elems = input.split(" ");
 		int count = 0;
 		for (int row = 0; row < 3; row ++){
@@ -18,21 +22,24 @@ public class Board {
 			}
 		}
 		
-		this.board = board;
+
 		this.currPlayer = currPlayer;
+		
+		getBlanks();
 		
 	}
 	
-	public Board(String[][] board){
+/*	public Board(String[][] board){
 		this.board = board;
-	}
+		getBlanks();
+	}*/
 	
 	private String boardarrayToString(){
 		String ret = "";
 		
 		for (int row = 0; row < 3; row ++){
 			for (int col = 0; col < 4; col ++){
-				ret = ret + board[row][col] + " ";
+				ret = ret + this.board[row][col] + " ";
 			}
 		}
 		
@@ -40,9 +47,10 @@ public class Board {
 	}
 	
 	private void getBlanks(){
+		blankCoords.clear();
 		for (int x = 0; x < 3; x ++){
 			for (int y = 0; y < 4; y ++){
-				if (board[x][y].equals("_")){
+				if (this.board[x][y].equals("_")){
 					Coords coordBlank = new Coords(x, y);
 					blankCoords.add(coordBlank);
 				}
@@ -51,25 +59,32 @@ public class Board {
 	}
 	
 	public int numBlanks(){
-		getBlanks();
 		//return arrayToString().length() - arrayToString().replace("_", "").length();
 		return blankCoords.size();
 	}
 	
 	public List<Board> successors(){
+		this.getBlanks();
 		ArrayList<Board> succs =  new ArrayList<Board>();
 		String nextPlayer;
+		
+		if (isTerminal()) return null;
 		
 		if (currPlayer.equals("X")){
 			nextPlayer = "O";
 		} else {
 			nextPlayer = "X";
 		}
-		
+	//	System.out.println("Number of BlankCoords: " + numBlanks());
 		for (Coords c : blankCoords){
+			//System.out.println("Current coords: " + c);
+	//		System.out.println("****************");
+	//		System.out.println("Current node: \n" + this);
 			Board b = new Board(boardarrayToString(), nextPlayer);
 			b.changeElem(c, nextPlayer);
 			succs.add(b);
+	//		System.out.println("Successor added: \n" + b);
+	//		System.out.println("****************");
 		}
 		
 		return succs;
@@ -79,13 +94,11 @@ public class Board {
 		board[c.getX()][c.getY()] = changeTo;
 	}
 	
-	public void print(){
-		for (int row = 0; row < 3; row ++){
-			for (int col = 0; col < 4; col ++){
-				System.out.print(board[row][col] + " ");
-			}
-			System.out.println();
-		}
+
+	public boolean isTerminal(){
+		return this.goalCheck().equals("Tie")
+				|| this.goalCheck().equals("O Won")
+				|| this.goalCheck().equals("X Won");
 	}
 	
 	public String goalCheck(){
@@ -123,14 +136,26 @@ public class Board {
 		boolean x = winTable.get("X");
 		
 		if (o || x){ // Not a tie
-			if (o && x) return "Tie";
-			else if (o) return "O Won";
-			else if (x) return "X Won";
+			if (o && x) { value = 0; return "Tie"; }
+			else if (o) { value = +1; return "O Won"; }
+			else if (x) { value = -1; return "X Won"; }
 		} else {
 			//Tie
-			return "Tie";
+			return "Result Unavailable";
 		}
 		return "Result Unavailable";
 	}
 
+	public String toString(){
+		String ret = "";
+		
+		for (int row = 0; row < 3; row ++){
+			for (int col = 0; col < 4; col ++){
+				ret = ret + board[row][col] + " ";
+			}
+			ret = ret + "\n";
+		}
+		
+		return ret;
+	}
 }

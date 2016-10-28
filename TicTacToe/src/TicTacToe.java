@@ -16,15 +16,23 @@ public class TicTacToe {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		String boardInput = "O X O X # O X O X O X O";
+		AlphaBetaPruning abp = new AlphaBetaPruning();
+		String boardInput = "O X O X # X X O O O _ _";
+		//String boardInput = "O X O X # O X O _ _ _ _";
+		
 		Board board = new Board(boardInput, "O");
-		board.print();
-		System.out.println(board.goalCheck());
-		System.out.println("****************");
-		for (Board b : board.successors()){
-			b.print();
-			System.out.println();
-		}
+		
+		abp.alphabeta(board, abp.MIN_VALUE, abp.MAX_VALUE, true);
+		
+
+		
+	//	System.out.println(board);
+	//	System.out.println(board.goalCheck());
+		System.out.println("****END****");
+	//	System.out.println("Number of successors: " + board.successors().size());
+		//System.out.println("Number of BlankCoords: " + board.numBlanks());
+		
+
 		// System.out.println(board.goalCheck());
 	}
 	
